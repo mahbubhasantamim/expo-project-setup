@@ -12,5 +12,5 @@ export const queryClient = new QueryClient({
 })
 
 export const QUERY_KEYS = {
-    DEMO: "qk-demo",
+    CURRENT_USER: "qk-get-current-user",
 }

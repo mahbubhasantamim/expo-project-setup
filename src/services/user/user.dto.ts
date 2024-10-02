@@ -1,23 +1,30 @@
-import { ISchool } from "../school/school.dto"
+import { z } from "zod"
+import { ZodEmailString, ZodPasswordString } from "../../utils/zod.util"
 
-export enum IUserState {
-    INLINE = "INLINE",
-    NOT_INLINE = "NOT_INLINE",
-}
+// * Request object with zod
+export const LoginWithEmailDto = z
+    .object({
+        email: ZodEmailString,
+        password: ZodPasswordString,
+    })
+    .strict()
 
-export interface IUser {
-    parentId: string
+export type ILoginWithEmailDto = z.infer<typeof LoginWithEmailDto>
+
+// * Response object
+export interface ICurrentUser {
+    id: string
+    fullName: string
     email: string
-    accessToken: string
-    expiresIn?: number
-    idToken?: string
-    issuedAt: number
-    refreshToken?: string
-    school: ISchool
-    state: IUserState
+    gender: string
+    avatar?: string
+    isEmailVerified: boolean
+    lastLoggedIn: Date
+    createdAt: Date
+    updatedAt: Date
 }
 
-export interface IChildren {
-    StudentName: string
-    StudentID: string
+export interface ITokens {
+    accessToken: string
+    refreshToken: string
 }

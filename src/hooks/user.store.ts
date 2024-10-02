@@ -1,6 +1,6 @@
 // logged in user global state with zustand store
 import { KeyConstant } from "@/constants/key.constant"
-import { IUser, IUserState } from "@/services/user/user.dto"
+import { ICurrentUser } from "@/services/user/user.dto"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { createJSONStorage, persist } from "zustand/middleware"
 import { shallow } from "zustand/shallow"
@@ -9,11 +9,10 @@ import { AsyncStorageUtil } from "../utils/async-storage.util"
 
 interface IUserStore {
     loading: boolean
-    user?: IUser | null
+    user?: ICurrentUser | null
 
     // * actions
-    setCurrentUser: (user: IUser) => void
-    toggleUserState: (state: IUserState) => void
+    setCurrentUser: (user: ICurrentUser) => void
     logout: () => void
 }
 
@@ -24,12 +23,10 @@ export const useUserStore = createWithEqualityFn<IUserStore>()(
                 loading: true,
                 user: undefined,
                 // * actions
-                setCurrentUser: (user: IUser) => {
+                setCurrentUser: (user: ICurrentUser) => {
                     set(old => ({ ...old, user: user, loading: false }))
                 },
-                toggleUserState: (state: IUserState) => {
-                    set(old => ({ ...old, user: { ...old.user, state } }))
-                },
+
                 logout: () => {
                     AsyncStorageUtil.removeData("tokens")
                     set(old => ({ ...old, user: undefined, loading: false }))

@@ -1,129 +1,47 @@
-// import { EnvConfig } from "@/config/env.config"
-// import { QUERY_KEYS } from "@/config/query.config"
-// import { useUserStore } from "@/hooks/user.store"
-// import { ISchool } from "@/services/school/school.dto"
-// import { SchoolService } from "@/services/school/school.service"
-// import { IUserState } from "@/services/user/user.dto"
-// import { UserService } from "@/services/user/user.service"
-// import { RnUtils } from "@/utils/rn.util"
-// import { useQuery } from "@tanstack/react-query"
-// import { AccessTokenRequestConfig, ResponseType, exchangeCodeAsync, useAuthRequest } from "expo-auth-session"
-// import * as WebBrowser from "expo-web-browser"
-// import { jwtDecode } from "jwt-decode"
-// import { useEffect, useMemo, useState } from "react"
-// import { ALERT_TYPE } from "react-native-alert-notification"
+import { useUserStore } from "@/hooks/user.store"
+import { ILoginWithEmailDto, LoginWithEmailDto } from "@/services/user/user.dto"
+import { UserService } from "@/services/user/user.service"
+import { ErrorUtil } from "@/utils/error.util"
+import { RnUtils } from "@/utils/rn.util"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as WebBrowser from "expo-web-browser"
+import { useForm } from "react-hook-form"
+import { ALERT_TYPE } from "react-native-alert-notification"
 
-// // this is not route because not export default
+// this is not route because not export default
 
-// WebBrowser.maybeCompleteAuthSession()
+WebBrowser.maybeCompleteAuthSession()
 
-// export function useLoginController() {
-//     const setCurrentUser = useUserStore(s => s.setCurrentUser)
-//     const {
-//         data: schools,
-//         isLoading: schoolsLoading,
-//         error: schoolsError,
-//         refetch: schoolsRefetch,
-//         isRefetching: schoolsRefetching,
-//     } = useQuery({
-//         queryKey: [QUERY_KEYS.SCHOOLS],
-//         queryFn: () => {
-//             return SchoolService.getSchoolList()
-//         },
-//     })
-//     const [authLoading, setAuthLoading] = useState<boolean>(false)
-//     const [schoolId, setSchoolId] = useState<undefined | string>()
-//     const [selectedSchool, setSelectedSchool] = useState<ISchool | undefined>()
+export function useLoginController() {
+    const setCurrentUser = useUserStore(s => s.setCurrentUser)
 
-//     useEffect(() => {
-//         if (schoolId) {
-//             const _selectedSchool = schools.find(it => it.SchoolID === schoolId)
-//             setSelectedSchool(_selectedSchool)
-//         }
-//     }, [schoolId])
+    const {
+        control,
+        handleSubmit,
+        formState: { isSubmitting },
+    } = useForm<ILoginWithEmailDto>({
+        resolver: zodResolver(LoginWithEmailDto),
+        defaultValues: {
+            email: "",
+            password: "",
+        },
+    })
 
-//     // setup cognito
-//     const discoveryDocument = useMemo(() => {
-//         if (selectedSchool) {
-//             return {
-//                 authorizationEndpoint: selectedSchool.UserPoolDomain + "/oauth2/authorize",
-//                 tokenEndpoint: selectedSchool.UserPoolDomain + "/oauth2/token",
-//                 revocationEndpoint: selectedSchool.UserPoolDomain + "/oauth2/revoke",
-//             }
-//         }
-//         return undefined
-//     }, [selectedSchool])
-//     const [request, response, promptAsync] = useAuthRequest(
-//         {
-//             clientId: selectedSchool?.ClientId,
-//             responseType: ResponseType.Code,
-//             redirectUri: EnvConfig.AUTH_REDIRECT_URI,
-//             usePKCE: true,
-//         },
-//         discoveryDocument
-//     )
+    const onSubmit = async (input: ILoginWithEmailDto) => {
+        try {
+            const userResponse = await UserService.loginWithEmail(input)
+            setCurrentUser(userResponse)
+            RnUtils.toast("successfully login", "", ALERT_TYPE.SUCCESS)
+        } catch (error) {
+            console.error("login with email:onSubmit:->", error)
+            const message = ErrorUtil.getErrorMessage(error as Error).message
+            RnUtils.toast(message, "", ALERT_TYPE.DANGER)
+        }
+    }
 
-//     useEffect(() => {
-//         const exchangeFn = async (exchangeTokenReq: AccessTokenRequestConfig) => {
-//             setAuthLoading(true)
-//             try {
-//                 const exchangeTokenResponse = await exchangeCodeAsync(exchangeTokenReq, discoveryDocument)
-//                 const info = jwtDecode<{
-//                     "cognito:username": string
-//                     email: string
-//                 }>(exchangeTokenResponse.idToken)
-//                 const parentId = info["cognito:username"]
-//                 setCurrentUser({
-//                     parentId,
-//                     email: info.email,
-//                     ...exchangeTokenResponse,
-//                     school: selectedSchool,
-//                     state: IUserState.NOT_INLINE,
-//                 })
-//                 // create sns token
-//                 await UserService.createSnsEndpoint(parentId, selectedSchool)
-//             } catch (error) {
-//                 console.error("exchangeFn:Error: -> ", error)
-//             } finally {
-//                 setAuthLoading(false)
-//             }
-//         }
-//         if (response) {
-//             if (response.type === "success") {
-//                 exchangeFn({
-//                     clientId: selectedSchool.ClientId,
-//                     code: response.params.code,
-//                     redirectUri: EnvConfig.AUTH_REDIRECT_URI,
-//                     extraParams: {
-//                         code_verifier: request.codeVerifier,
-//                     },
-//                 })
-//             } else {
-//                 RnUtils.toast("Something went wrong", "Try again later", ALERT_TYPE.DANGER)
-//             }
-//         }
-//     }, [discoveryDocument, request, response])
-
-//     const saveSchoolAndContinue = () => {
-//         // check if we have school selected or not
-//         if (!schoolId) {
-//             RnUtils.toast("Select School", "Select school to continue", ALERT_TYPE.DANGER)
-//             return
-//         }
-
-//         // main cognito call
-//         promptAsync()
-//     }
-
-//     return {
-//         schools: schools || [],
-//         schoolsLoading,
-//         schoolsError,
-//         schoolsRefetch,
-//         schoolsRefetching,
-//         schoolId,
-//         setSchoolId,
-//         saveSchoolAndContinue,
-//         authLoading,
-//     }
-// }
+    return {
+        control,
+        handleSubmit: handleSubmit(onSubmit),
+        isSubmitting,
+    }
+}

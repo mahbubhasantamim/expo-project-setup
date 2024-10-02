@@ -6,8 +6,6 @@ import { Redirect, Tabs } from "expo-router"
 import React from "react"
 import { SafeAreaView, Text } from "react-native"
 
-const school = useUserStore.getState().user?.school
-
 export default function PrivateLayout() {
     // todo: check if user is not logged in. redirect to login.screen
     const user = useUserStore(s => s.user)
@@ -35,13 +33,7 @@ export default function PrivateLayout() {
                         tabBarIcon: ({ color }) => <Feather name="home" size={28} color={color} />,
                     }}
                 />
-                <Tabs.Screen
-                    name={RouteConstant.HOME_NAV.SETTING_SCREEN}
-                    options={{
-                        title: "Settings",
-                        tabBarIcon: ({ color }) => <Feather name="settings" size={28} color={color} />,
-                    }}
-                />
+
                 {/* inner components file */}
             </Tabs>
         )

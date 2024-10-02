@@ -5,12 +5,7 @@ import React from "react"
 import { Control, Controller, FieldValues, Path } from "react-hook-form"
 import { Keyboard, Text, TextInput, TextInputProps, View } from "react-native"
 import ErrorMessage from "./error-message"
-
 type Variant = "fill" | "outline"
-const VariantObj = {
-    fill: "bg-[#7676801F] dark:bg-gray-600 text-gray-600 dark:text-gray-300",
-    outline: "border border-[#EEEEEE] text-gray-600 dark:text-gray-300",
-}
 
 type Size = "normal" | "sm"
 const SizeVariantObj = {
@@ -46,21 +41,17 @@ export const MyInput = ({
     const { colorScheme } = useColorScheme()
 
     return (
-        <View className="flex flex-col" style={style}>
+        <View>
             {!hideLabel && (
                 <View className="flex-row items-center">
                     <Text className="pl-1.5 mb-1 text-sm text-gray-500 dark:text-gray-400 mr-2">{label}</Text>
                 </View>
             )}
-            <View
-                className={`flex flex-row justify-between items-center 
-            ${error ? "border border-error" : ""} ${VariantObj[variant]} rounded-xl px-2
-            `}>
-                <View>{iconLeft && iconLeft}</View>
-
+            <View>
                 <TextInput
                     ref={myRef}
-                    className={`flex-1 ${SizeVariantObj[size]} px-2`}
+                    className={`bg-red-600 border rounded-md px-4 py-4`}
+                    // style={{ backgroundColor: "red", padding: "8px" }}
                     selectionColor={TailwindColor.primary[500]}
                     cursorColor={TailwindColor.primary[500]}
                     placeholderTextColor={
@@ -81,7 +72,6 @@ export const MyInput = ({
                     returnKeyType={handleNext ? "next" : "done"}
                     {...rest}
                 />
-                <View>{iconRight && iconRight}</View>
             </View>
 
             {error && <ErrorMessage error={error} />}
