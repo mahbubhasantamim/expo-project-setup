@@ -1,9 +1,6 @@
-import { Text, View } from "react-native";
+import { RouteConstant } from "@/constants/route.constant"
+import { Redirect } from "expo-router"
 
-export default function Home() {
-  return (
-    <View>
-      <Text className="text-4xl text-red-500">Hello</Text>
-    </View>
-  );
+export default function Index() {
+    return <Redirect href={RouteConstant.AUTH_NAV.LOGIN_SCREEN} />
 }

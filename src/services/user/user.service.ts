@@ -11,4 +11,7 @@ export const UserService = {
         const { data } = await ApiService.post<IResponse<ICurrentUser>>("/v1/user")
         return data
     },
+    logoutUser: async () => {
+        await ApiService.post("/v1/auth/logout")
+    },
 }

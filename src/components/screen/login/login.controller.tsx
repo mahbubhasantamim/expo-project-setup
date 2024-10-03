@@ -1,3 +1,4 @@
+import { QUERY_KEYS, queryClient } from "@/config/query.config"
 import { useUserStore } from "@/hooks/user.store"
 import { ILoginWithEmailDto, LoginWithEmailDto } from "@/services/user/user.dto"
 import { UserService } from "@/services/user/user.service"
@@ -14,6 +15,7 @@ WebBrowser.maybeCompleteAuthSession()
 
 export function useLoginController() {
     const setCurrentUser = useUserStore(s => s.setCurrentUser)
+    const logout = useUserStore(s => s.logout)
 
     const {
         control,
@@ -30,11 +32,29 @@ export function useLoginController() {
     const onSubmit = async (input: ILoginWithEmailDto) => {
         try {
             const userResponse = await UserService.loginWithEmail(input)
-            setCurrentUser(userResponse)
-            RnUtils.toast("successfully login", "", ALERT_TYPE.SUCCESS)
+            if (userResponse.id) {
+                const data = await UserService.getLoggedInUser()
+                setCurrentUser(data.response)
+            }
+            RnUtils.toast("Success", "successfully login", ALERT_TYPE.SUCCESS)
         } catch (error) {
             console.error("login with email:onSubmit:->", error)
             const message = ErrorUtil.getErrorMessage(error as Error).message
+            RnUtils.toast(message, "", ALERT_TYPE.DANGER)
+        }
+    }
+    const logoutUser = async () => {
+        try {
+            await UserService.logoutUser()
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CURRENT_USER], type: "all" }),
+            ])
+            logout()
+            queryClient.clear()
+        } catch (error) {
+            console.log(error)
+            const errorObject = ErrorUtil.getErrorMessage(error as Error)
+            const message = errorObject?.message
             RnUtils.toast(message, "", ALERT_TYPE.DANGER)
         }
     }
@@ -43,5 +63,6 @@ export function useLoginController() {
         control,
         handleSubmit: handleSubmit(onSubmit),
         isSubmitting,
+        logoutUser,
     }
 }

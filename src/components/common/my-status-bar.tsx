@@ -9,7 +9,7 @@ export default function MyStatusBar() {
     return (
         <StatusBar
             barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
-            backgroundColor={colorScheme === "dark" ? TailwindColor.gray[950] : TailwindColor.white}
+            backgroundColor={colorScheme === "dark" ? TailwindColor.gray[900] : TailwindColor.white}
         />
     )
 }

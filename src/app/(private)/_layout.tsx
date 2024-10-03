@@ -33,6 +33,13 @@ export default function PrivateLayout() {
                         tabBarIcon: ({ color }) => <Feather name="home" size={28} color={color} />,
                     }}
                 />
+                <Tabs.Screen
+                    name={RouteConstant.HOME_NAV.SETTINGS_SCREEN}
+                    options={{
+                        title: "Settings",
+                        tabBarIcon: ({ color }) => <Feather name="settings" size={28} color={color} />,
+                    }}
+                />
 
                 {/* inner components file */}
             </Tabs>

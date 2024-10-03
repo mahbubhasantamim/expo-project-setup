@@ -1,6 +1,4 @@
-import { FieldValues, RegisterOptions } from "react-hook-form"
+import { RegisterOptions } from "react-hook-form"
 
-export type RuleType = Omit<
-    RegisterOptions<FieldValues, string>,
-    "valueAsNumber" | "valueAsDate" | "setValueAs" | "disabled"
->
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type RuleType = Omit<RegisterOptions<any, any>, "valueAsNumber" | "valueAsDate" | "setValueAs" | "disabled">
